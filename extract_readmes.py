@@ -1,13 +1,14 @@
 import os
+import sys
 
-def extract_readmes(output_file='extracted_readmes.md'):
+def extract_readmes(start_dir='.', output_file='extracted_readmes.md'):
     """
-    Finds all README and README.md files recursively in the current directory,
+    Finds all README and README.md files recursively in the specified directory,
     and writes their content to an output file with source directory headers.
     """
     readmes_found = []
 
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk(start_dir):
         # Skip .git directory to avoid clutter
         if '.git' in dirs:
             dirs.remove('.git')
@@ -15,7 +16,7 @@ def extract_readmes(output_file='extracted_readmes.md'):
         for file in files:
             if file.lower() in ['readme', 'readme.md']:
                 file_path = os.path.join(root, file)
-                rel_path = os.path.relpath(root, '.')
+                rel_path = os.path.relpath(root, start_dir)
                 display_path = rel_path if rel_path != '.' else 'root directory'
 
                 try:
@@ -42,6 +43,7 @@ def extract_readmes(output_file='extracted_readmes.md'):
             outfile.write(f"================================================================================\n")
             outfile.write(f"SOURCE: {readme['display_path']}\n")
             outfile.write(f"FILE: {readme['file_path']}\n")
+            # Clear demarkation between readmes
             outfile.write(f"================================================================================\n\n")
 
             outfile.write(readme['content'])
@@ -51,4 +53,5 @@ def extract_readmes(output_file='extracted_readmes.md'):
             outfile.write("\n\n")
 
 if __name__ == "__main__":
-    extract_readmes()
+    directory = sys.argv[1] if len(sys.argv) > 1 else '.'
+    extract_readmes(directory)
